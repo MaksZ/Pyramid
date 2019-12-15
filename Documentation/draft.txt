@@ -1,0 +1,81 @@
+https://jsfiddle.net/5kebLcyr/7/
+
+
+
+1	                             215
+0	                           192 124
+1	                          117 269 442
+0	                        218 836 347 235
+1	                      320 805 522 417 345
+0	                    229 601 728 835 133 124
+1	                  248 202 277 433 207 263 257
+0	                359 464 504 528 516 716 871 182
+1	              461 441 426 656 863 560 380 171 923
+0	            381 348 573 533 448 632 387 176 975 449
+1	          223 711 445 645 245 543 931 532 937 541 444
+0	        330 131 333 928 376 733 017 778 839 168 197 197
+1	     131 171 522 137 217 224 291 413 528 520 227 229 928
+0	  223 [626] [034] 683 839 [052] 627 [310] 713 999 629 817 (410) 121
+1	924 622  *911   233 325 139  *721 218  *253 223 107 233 230  124  233
+
+
+Storage
+  LineCount: int
+  GetNodesAtLine(lineNum: int, kindOfNode: even/odd ): enumeration of  
+  GetSubtotal(position: int): int
+  SetSubtotal(position: int, value: int)
+
+Node
+  Position: int
+  Value: int
+  SelectedChild: unknown (default), noone, left, right, both
+  Kind: odd/even
+
+  IsCalculated: bool => SelectedChild != unknown
+  IsSelectable: bool => SelectedChild > noone
+  
+  IsEven: bool => Kind == even
+  IsOdd: bool => Kind == odd
+
+  
+  
+CalculateLineSubtotals(lineNum: int, kindOfNode: even/odd)
+
+  keepGoing: bool
+  
+  do
+    keepGoing = false
+	
+    foreach n in _storage.GetNodesAtLine(lineNum)
+	
+	  if (n.IsCalculated) continue
+	  
+	  if (n.Kind != kindOfNode)
+	    atomic n.SelectedChild = noone
+		continue
+	  
+	  nodes = _storage.GetNodeChildren(n)
+	  
+	  if (!node.Left.IsCalculated || !node.Right.IsCalculated)
+	    keepGoing = true
+		continue
+	  
+	  leftValue = node.Left.IsSelectable ? _storage.GetSubtotal(n.Left.Position) : 0
+	  rightValue = node.Right.IsSelectable ? _storage.GetSubtotal(n.Right.Position) : 0
+	  
+	  subtotal = leftValue
+	  selectedChild = left
+	  
+      if (leftValue == rightValue)
+		selectedChild = subtotal == 0 ? noone : both
+	  else if (rightValue > leftValue)
+	    subtotal = rightValue;
+		selectedChild = right
+		
+	  if (selectedChild != noone)
+	    _storage.AddSubtotal(n.Position, n.Value + subtotal);
+		   
+	  atomic n.SelectedChild = selectedChild
+	  
+  while keepGoing
+  
