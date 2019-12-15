@@ -8,94 +8,82 @@ namespace Pyramid.Solver
 {
     public class PyramidSolver
     {
-        public Result Solve(IEnumerable<int> source)
+        private readonly IEnumerator<int> _numbers;
+
+        /// <summary>
+        /// Find the path that provides the maximum possible sum of the numbers
+        /// </summary>
+        /// <param name="source">A triangle input given as a non-empty sequence of numbers</param>
+        /// <returns>The maximum possible sum and a path of numbers that provides that sum</returns>
+        public static Result Solve(IEnumerable<int> source)
         {
             if (source == null) throw new ArgumentNullException();
 
-            var iter = source.GetEnumerator();
+            var numbers = source.GetEnumerator();
 
-            if (!iter.MoveNext()) throw new ArgumentException("Empty collection is not expected!");
+            if (!numbers.MoveNext()) throw new ArgumentException("Empty collection is not expected!");
 
-            var root = Node.Root(iter.Current);
+            return new PyramidSolver(numbers).Solve();
+        }
+
+        private PyramidSolver(IEnumerator<int> numbers)
+        {
+            _numbers = numbers;
+        }
+
+        private Result Solve()
+        {
+            var root = Node.Root(_numbers.Current);
             var parity = root.Value.GetParity();
 
-            var candidates = new List<Node>(1) { root };
-
             var lineNumber = 1;
+            var pathEndings = new List<Node>(1) { root };
 
-            while (iter.MoveNext())
+            while (_numbers.MoveNext() && pathEndings.Count > 0)
             {
                 parity = parity.InvertParity();
 
-                candidates = CollectNumbers(candidates, parity, iter, ++lineNumber);
+                pathEndings = FindPathEndings(pathEndings, parity, ++lineNumber);
             }
 
-            return GetResult(candidates, lineNumber);
+            if (pathEndings.Count == 0)
+                throw new ArgumentException("The given sequence of numbers doesn't contain any valid path!");
+
+            return GetResult(pathEndings, lineNumber);
         }
 
-        private List<Node> CollectNumbers(List<Node> parents, Parity validParity, IEnumerator<int> iter, int itemsInLine)
+        private List<Node> FindPathEndings(List<Node> currentEndings, Parity validParity, int lineNumber)
         {
-            var expectedCandidatesCount = 2 * parents.Count;
+            var expectedEndingsCount = 2 * currentEndings.Count;
 
-            if (expectedCandidatesCount > itemsInLine) expectedCandidatesCount = itemsInLine;
+            if (expectedEndingsCount > lineNumber) expectedEndingsCount = lineNumber;
 
-            var candidates = new List<Node>(expectedCandidatesCount);
+            var pathEndings = new List<Node>(expectedEndingsCount);
+
+            var pathLinker = new PathLinker(currentEndings);
 
             var itemIndex = 0;
+            Node path;
 
             do
             {
-                var value = iter.Current;
+                var number = _numbers.Current;
 
-                if (candidates.Count < expectedCandidatesCount && value.GetParity() == validParity)
+                if (number.GetParity() == validParity && pathLinker.TryLocatePath(itemIndex, out path))
                 {
-                    for (var i = 0; i < parents.Count; i++)
-                    {
-                        var parent = parents[i];
-
-                        if (parent.Index == itemIndex - 1)
-                        {
-                            if (++i < parents.Count)
-                            {
-                                var parent2 = parents[i];
-
-                                if (parent2.Index == itemIndex && parent2.SubTotal >= parent.SubTotal)
-                                {
-                                    parent = parent2;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (parent.Index != itemIndex) continue;
-
-                            if (i > 0)
-                            {
-                                var parent2 = parents[i - 1];
-
-                                if (parent2.Index == itemIndex - 1 && parent2.SubTotal > parent.SubTotal)
-                                {
-                                    parent = parent2;
-                                }
-                            }
-                        }
-
-
-                        candidates.Add(new Node(itemIndex, value, parent));
-                        break;
-                    }
+                    pathEndings.Add(new Node(itemIndex, number, path));
                 }
 
-                if (++itemIndex == itemsInLine) return candidates;
+                if (++itemIndex == lineNumber) return pathEndings;
             }
-            while (iter.MoveNext());
+            while (_numbers.MoveNext());
 
             throw new Exception("Unexpected truncation of list of numbers!");
         }
 
-        private Result GetResult(List<Node> candidates, int pathLength)
+        private Result GetResult(List<Node> pathEndings, int pathLength)
         {
-            var node = candidates.OrderByDescending(x => x.SubTotal).First();
+            var node = pathEndings.OrderByDescending(x => x.SubTotal).First();
 
             var sum = node.SubTotal;
 
@@ -111,21 +99,6 @@ namespace Pyramid.Solver
             path.Reverse();
 
             return new Result(sum, path);
-        }
-
-        internal enum Parity { Even, Odd };
-
-        public class Result
-        {
-            public int Sum { get; }
-
-            public IReadOnlyCollection<int> Path { get; }
-
-            public Result(int sum, List<int> path)
-            {
-                Sum = sum;
-                Path = path;
-            }
         }
     }
 }
