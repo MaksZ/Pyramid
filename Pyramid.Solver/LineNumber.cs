@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace Pyramid.Solver
 {
-    internal class Node
+    internal class LineNumber
     {
         public int Index { get; }
         public int Value { get; }
         public int SubTotal { get; }
 
-        public Node Parent { get; }
+        public LineNumber Parent { get; }
 
-        public Node (int index, int value, Node parent = null)
+        public LineNumber (int index, int value, LineNumber parent = null)
         {
             Index = index;
             Value = value;
@@ -22,6 +22,6 @@ namespace Pyramid.Solver
             Parent = parent;
         }
 
-        public static Node Root(int value) => new Node(0, value);
+        public static LineNumber Root(int value) => new LineNumber(0, value);
     }
 }

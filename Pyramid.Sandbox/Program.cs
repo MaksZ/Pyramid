@@ -12,7 +12,7 @@ namespace Pyramid.Sandbox
         {
             try
             {
-                var result = Solver.PyramidSolver.Solve(TestData);
+                var result = Solver.PyramidSolver.Solve(Data);
 
                 Console.WriteLine("Output:");
                 Console.WriteLine($"Max sum: {result.Sum}");
