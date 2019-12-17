@@ -12,7 +12,7 @@ namespace Pyramid.Sandbox
         {
             try
             {
-                var result = Solver.PyramidSolver.Solve(Data);
+                var result = Solver.PyramidSolver.Solve(TestData2);
 
                 Console.WriteLine("Output:");
                 Console.WriteLine($"Max sum: {result.Sum}");
@@ -32,6 +32,20 @@ namespace Pyramid.Sandbox
             8, 9,
             1, 5, 9,
             4, 5, 2, 3
+        };
+
+        private static int[] TestData2 = new int[]
+        {
+             1,
+             2, 10,
+            11,  5, 4,
+             8, 12, 6, 6,
+            13,  9, 5, 6,  7,
+             3, 10, 5, 6,  2, 1,
+             3, 10, 5, 6,  2, 1, 1,
+             3, 10, 5, 6,  2, 1, 1,  2,
+             3, 10, 5, 6, 23, 1, 1, 23, 3,
+             3, 10, 5, 6,  2, 1, 2,  3, 5, 6
         };
 
         private static int[] Data = new int[]

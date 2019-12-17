@@ -18,8 +18,6 @@ namespace Pyramid.Solver
 
         public LineNumber Next => GetRightToCurrent();
 
-        public LineNumber Previous => GetLeftToCurrent();
-
         public bool CanIterate => index < items.Count;
 
         public LineIterator(IReadOnlyList<LineNumber> source)
@@ -35,12 +33,6 @@ namespace Pyramid.Solver
 
             Current = items[index];
             return true;
-        }
-
-        private LineNumber GetLeftToCurrent()
-        {
-            var j = index - 1;
-            return j < 0 ? null : items[j];
         }
 
         private LineNumber GetRightToCurrent()

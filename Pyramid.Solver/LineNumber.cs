@@ -6,12 +6,18 @@ using System.Threading.Tasks;
 
 namespace Pyramid.Solver
 {
+    /// <summary>
+    /// Keeps valid number
+    /// </summary>
     internal class LineNumber
     {
         public int Index { get; }
         public int Value { get; }
         public int SubTotal { get; }
 
+        /// <summary>
+        /// Link to a valid number from previous line
+        /// </summary>
         public LineNumber Parent { get; }
 
         public LineNumber (int index, int value, LineNumber parent = null)
@@ -22,6 +28,6 @@ namespace Pyramid.Solver
             Parent = parent;
         }
 
-        public static LineNumber Root(int value) => new LineNumber(0, value);
+        public static LineNumber AsRoot(int value) => new LineNumber(0, value);
     }
 }
